@@ -471,7 +471,7 @@ let versesData = null;
 
 async function loadVersesData() {
   try {
-    const response = await fetch('./data/verses.json');
+    const response = await fetch('/AudioVersets_V1_Hors_Connexion/data/verses.json');
     versesData = await response.json();
     console.log('✅ Versets chargés:', Object.keys(versesData).length, 'versets');
   } catch (e) {
