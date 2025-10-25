@@ -869,24 +869,10 @@ async function preloadAudios() {
     const reciterPath = RECITERS.find(x=>x.id===state.reciter)?.path || 'Hudhaify_128kbps';
     const audioPath = `/AudioVersets_V1_Hors_Connexion/audios/${reciterPath}/${s}${v}.mp3`;
     
-    console.log('🔊 Chargement local:', audioPath);
-    
-    try {
-      const response = await fetch(audioPath);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      
-      E.player.src = blobUrl;
-      await E.player.load();
-      await E.player.play().catch(() => {});
-      
-      console.log('▶️ Audio jouant (Blob)');
-    } catch(err) {
-      console.warn('⚠️ Fallback direct :', err.message);
-      E.player.src = audioPath;
-      await E.player.load();
-      await E.player.play().catch(() => {});
-    }
+    console.log('🔊 Chargement:', audioPath);
+    E.player.src = audioPath;
+    await E.player.load();
+    await E.player.play().catch(err => console.warn('⚠️', err.message));
     console.log('✅ Audio chargé');
     
   } catch(err) {
