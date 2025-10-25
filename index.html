@@ -801,7 +801,7 @@ loadVersesData();
     const s = String(q.surah).padStart(3,'0');
     const v = String(q.verse).padStart(3,'0');
     const reciterPath = RECITERS.find(x=>x.id===state.reciter)?.path || 'Hudhaify_128kbps';
-    const audioPath = `./audios/${reciterPath}/${s}${v}.mp3`;
+    const audioPath = `/AudioVersets_V1_Hors_Connexion/audios/${reciterPath}/${s}${v}.mp3`;
     
     console.log('🔊 Chargement local:', audioPath);
     
