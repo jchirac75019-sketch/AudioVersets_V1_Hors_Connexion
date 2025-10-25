@@ -259,7 +259,12 @@
         <div class="stats">
           إجمالي الآيات: <span id="totalVerses" class="highlight">0</span>
         </div>
-
+        
+         <div id="preloadSection" style="display:none;text-align:center;margin-bottom:16px;padding:12px;background:#e0f2fe;border-radius:8px">
+        <div style="font-size:12px;color:#0369a1;margin-bottom:8px">📥 <strong>Mode Hors Ligne</strong></div>
+        <button id="preloadBtn" class="btn btn-amber" style="width:100%">⬇️ Télécharger les audios (Option 2) </button>
+       <div id="preloadProgress" style="font-size:11px;color:#0369a1;margin-top:6px;display:none">Chargement: <span id="preloadCount">0</span>/<span id="preloadTotal">0</span></div>
+     </div>
         <button id="startBtn" class="btn btn-primary" style="width:100%">ابدأ الاختبار</button>
       </div>
     </div>
@@ -521,6 +526,52 @@ loadVersesData();
       E.reciter.value="hudhaify";
     }
 
+     // Pré-charger les audios
+async function preloadAudios() {
+  const a = parseInt(E.startSurah.value), b = parseInt(E.endSurah.value);
+  const va = parseInt(E.startVerse.value||"1"), vb = parseInt(E.endVerse.value||"1");
+  const reciterId = E.reciter.value;
+  const r = RECITERS.find(x=>x.id===reciterId) || RECITERS[0];
+  
+  const preloadBtn = document.getElementById('preloadBtn');
+  const preloadProgress = document.getElementById('preloadProgress');
+  const preloadCount = document.getElementById('preloadCount');
+  const preloadTotal = document.getElementById('preloadTotal');
+  
+  // Générer la liste des audios à charger
+  const audiosToLoad = [];
+  for(let s=a; s<=b; s++){
+    const S = getSurah(s);
+    const from = (s===a) ? va : 1;
+    const to = (s===b) ? Math.min(vb, S.versets) : S.versets;
+    for(let v=from; v<=to; v++){
+      const ss = String(s).padStart(3,'0');
+      const vv = String(v).padStart(3,'0');
+      audiosToLoad.push(`/AudioVersets_V1_Hors_Connexion/audios/${r.path}/${ss}${vv}.mp3`);
+    }
+  }
+  
+  preloadTotal.textContent = audiosToLoad.length;
+  preloadProgress.style.display = 'block';
+  preloadBtn.disabled = true;
+  preloadBtn.textContent = '⏳ Chargement...';
+  
+  let loaded = 0;
+  for(const url of audiosToLoad){
+    try {
+      await fetch(url);
+      loaded++;
+      preloadCount.textContent = loaded;
+    } catch(e){
+      console.warn('Erreur pré-chargement:', url);
+    }
+  }
+  
+  preloadBtn.disabled = false;
+  preloadBtn.textContent = '✅ ' + loaded + ' audios chargés !';
+  setTimeout(()=>{ preloadBtn.textContent = '⬇️ Télécharger les audios (Option 2)'; }, 3000);
+}
+
     function bindEvents(){
       E.startSurah.addEventListener('change', ()=>{clearQuizState(); validateStart();updateTotals()});
       E.endSurah.addEventListener('change', ()=>{clearQuizState(); setEndMax();validateEnd();updateTotals()});
@@ -552,6 +603,15 @@ loadVersesData();
       window.addEventListener('blur', pauseTimer);
       window.addEventListener('focus', resumeTimer);
     }
+
+     // Afficher/masquer le pré-chargement selon l'option
+E.mode.addEventListener('change', ()=>{
+  const preloadSection = document.getElementById('preloadSection');
+  preloadSection.style.display = E.mode.value === 'audio' ? 'block' : 'none';
+});
+
+// Bouton pré-chargement
+document.getElementById('preloadBtn').addEventListener('click', preloadAudios);
 
     function toggleReciter(){
       const isAudio = E.mode.value==="audio";
@@ -806,12 +866,14 @@ loadVersesData();
     
     E.player.src = audioPath;
     await E.player.load();
-    await E.player.play();
+    await E.player.play().catch(err => {
+      console.warn('⚠️ Autoplay bloqué (normal hors ligne):', err.message);
+    });
     console.log('✅ Audio chargé');
     
   } catch(err) {
     console.error('❌ Erreur audio:', err);
-    alert('خطأ في تحميل الصوت');
+    console.log('ℹ️ Possible: Hors ligne, MP3 pas en cache');
   }
 }
 
