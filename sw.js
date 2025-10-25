@@ -3,11 +3,10 @@
 const CACHE = 'quiz-coran-v1';
 
 const CORE = [
-  './',
-  './index.html',
-  './style.css',
-  './app.js',
-  './manifest.json'
+  '/',
+  '/AudioVersets_V1_Hors_Connexion/',
+  '/AudioVersets_V1_Hors_Connexion/index.html',
+  '/AudioVersets_V1_Hors_Connexion/style.css'
 ];
 
 self.addEventListener('install', e => {
