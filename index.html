@@ -581,45 +581,44 @@ async function preloadAudios() {
 }
 
     function bindEvents(){
-      E.startSurah.addEventListener('change', ()=>{clearQuizState(); validateStart();updateTotals()});
-      E.endSurah.addEventListener('change', ()=>{clearQuizState(); setEndMax();validateEnd();updateTotals()});
-      E.startVerse.addEventListener('input', ()=>{clearQuizState(); validateStart();updateTotals()});
-      E.endVerse.addEventListener('input', ()=>{clearQuizState(); validateEnd();updateTotals()});
-      E.mode.addEventListener('change', ()=>{clearQuizState(); toggleReciter()});
-      E.attempts.addEventListener('change', ()=>{clearQuizState()});
-      E.reciter.addEventListener('change', ()=>{clearQuizState()});
+  E.startSurah.addEventListener('change', ()=>{clearQuizState(); validateStart();updateTotals()});
+  E.endSurah.addEventListener('change', ()=>{clearQuizState(); setEndMax();validateEnd();updateTotals()});
+  E.startVerse.addEventListener('input', ()=>{clearQuizState(); validateStart();updateTotals()});
+  E.endVerse.addEventListener('input', ()=>{clearQuizState(); validateEnd();updateTotals()});
+  E.mode.addEventListener('change', ()=>{
+    clearQuizState();
+    toggleReciter();
+    const preloadSection = document.getElementById('preloadSection');
+    preloadSection.style.display = E.mode.value === 'audio' ? 'block' : 'none';
+  });
+  E.attempts.addEventListener('change', ()=>{clearQuizState()});
+  E.reciter.addEventListener('change', ()=>{clearQuizState()});
 
-      E.startBtn.addEventListener('click', startQuiz);
-      E.homeBtn.addEventListener('click', () => goto('home'));
-      E.newQuiz.addEventListener('click', () => goto('home'));
+  E.startBtn.addEventListener('click', startQuiz);
+  E.homeBtn.addEventListener('click', () => goto('home'));
+  E.newQuiz.addEventListener('click', () => goto('home'));
 
-      // texte
-      E.showVerse.addEventListener('click', showVerseText);
-      E.okBtn1.addEventListener('click', ()=>record(true));
-      E.koBtn1.addEventListener('click', ()=>record(false));
-      E.next1.addEventListener('click', next);
+  // texte
+  E.showVerse.addEventListener('click', showVerseText);
+  E.okBtn1.addEventListener('click', ()=>record(true));
+  E.koBtn1.addEventListener('click', ()=>record(false));
+  E.next1.addEventListener('click', next);
 
-      // audio
-      E.replay.addEventListener('click', ()=>{E.player.currentTime=0;E.player.play().catch(()=>{})});
-      E.showInfo.addEventListener('click', showAudioInfo);
-      E.okBtn2.addEventListener('click', ()=>record(true));
-      E.koBtn2.addEventListener('click', ()=>record(false));
-      E.next2.addEventListener('click', next);
+  // audio
+  E.replay.addEventListener('click', ()=>{E.player.currentTime=0;E.player.play().catch(()=>{})});
+  E.showInfo.addEventListener('click', showAudioInfo);
+  E.okBtn2.addEventListener('click', ()=>record(true));
+  E.koBtn2.addEventListener('click', ()=>record(false));
+  E.next2.addEventListener('click', next);
 
-      // visibility → pause
-      document.addEventListener('visibilitychange', ()=>{if(document.hidden) pauseTimer(); else resumeTimer();});
-      window.addEventListener('blur', pauseTimer);
-      window.addEventListener('focus', resumeTimer);
-    }
+  // Pré-chargement
+  document.getElementById('preloadBtn').addEventListener('click', preloadAudios);
 
-     // Afficher/masquer le pré-chargement selon l'option
-E.mode.addEventListener('change', ()=>{
-  const preloadSection = document.getElementById('preloadSection');
-  preloadSection.style.display = E.mode.value === 'audio' ? 'block' : 'none';
-});
-
-// Bouton pré-chargement
-document.getElementById('preloadBtn').addEventListener('click', preloadAudios);
+  // visibility → pause
+  document.addEventListener('visibilitychange', ()=>{if(document.hidden) pauseTimer(); else resumeTimer();});
+  window.addEventListener('blur', pauseTimer);
+  window.addEventListener('focus', resumeTimer);
+}
 
     function toggleReciter(){
       const isAudio = E.mode.value==="audio";
