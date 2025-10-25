@@ -873,9 +873,15 @@ async function preloadAudios() {
     
     E.player.src = audioPath;
     await E.player.load();
-    await E.player.play().catch(err => {
-      console.warn('⚠️ Autoplay bloqué (normal hors ligne):', err.message);
-    });
+    
+    // ✅ FORCE le play maintenant !
+    try {
+      await E.player.play();
+      console.log('▶️ Audio en cours de lecture');
+    } catch (playErr) {
+      console.warn('⚠️ Autoplay bloqué :', playErr.message);
+      // Le lecteur montrera les contrôles pour que l'utilisateur clique Play
+    }
     console.log('✅ Audio chargé');
     
   } catch(err) {
