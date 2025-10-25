@@ -806,6 +806,7 @@ loadVersesData();
     
     E.player.src = audioPath;
     await E.player.load();
+    await E.player.play();
     console.log('✅ Audio chargé');
     
   } catch(err) {
