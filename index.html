@@ -538,7 +538,6 @@ async function preloadAudios() {
   const preloadCount = document.getElementById('preloadCount');
   const preloadTotal = document.getElementById('preloadTotal');
   
-  // Générer la liste des audios à charger
   const audiosToLoad = [];
   for(let s=a; s<=b; s++){
     const S = getSurah(s);
@@ -557,18 +556,27 @@ async function preloadAudios() {
   preloadBtn.textContent = '⏳ Chargement...';
   
   let loaded = 0;
+  const cache = await caches.open('quiz-coran-v1');
+  
   for(const url of audiosToLoad){
     try {
-      await fetch(url);
+      const response = await fetch(url);
+      if(response.ok) {
+        await cache.put(url, response.clone());
+        console.log('💾 Cached:', url);
+      }
       loaded++;
       preloadCount.textContent = loaded;
     } catch(e){
-      console.warn('Erreur pré-chargement:', url);
+      console.warn('⚠️ Erreur:', url, e.message);
+      loaded++;
+      preloadCount.textContent = loaded;
     }
   }
   
   preloadBtn.disabled = false;
   preloadBtn.textContent = '✅ ' + loaded + ' audios chargés !';
+  console.log('✅ Tous les audios sont en cache !');
   setTimeout(()=>{ preloadBtn.textContent = '⬇️ Télécharger les audios (Option 2)'; }, 3000);
 }
 
