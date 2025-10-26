@@ -872,9 +872,7 @@ async function preloadAudios() {
     console.log('🔊 Chargement:', audioPath);
     
     E.player.src = audioPath;
-    E.player.load();
     
-    // Attendre que l'audio soit prêt
     await new Promise((resolve, reject) => {
       E.player.addEventListener('canplaythrough', resolve, {once: true});
       E.player.addEventListener('error', reject, {once: true});
