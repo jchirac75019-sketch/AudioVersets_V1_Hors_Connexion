@@ -870,9 +870,17 @@ async function preloadAudios() {
     const audioPath = `/AudioVersets_V1_Hors_Connexion/audios/${reciterPath}/${s}${v}.mp3`;
     
     console.log('🔊 Chargement:', audioPath);
+    
     E.player.src = audioPath;
-    await E.player.load();
-    await E.player.play().catch(err => console.warn('⚠️', err.message));
+    E.player.load();
+    
+    // Attendre que l'audio soit prêt
+    await new Promise((resolve, reject) => {
+      E.player.addEventListener('canplaythrough', resolve, {once: true});
+      E.player.addEventListener('error', reject, {once: true});
+    });
+    
+    await E.player.play().catch(err => console.warn('⚠️ Autoplay:', err.message));
     console.log('✅ Audio chargé');
     
   } catch(err) {
@@ -935,18 +943,18 @@ async function showAudioInfo(){
     }
 
     function record(isOk){
-      const q=state.questions[state.idx];
-      if(isOk){ state.ok++; E.ok.textContent=state.ok; } else { state.ko++; E.ko.textContent=state.ko; }
-      state.history.push({
-        q, isOk, at:new Date()
-      });
-      if(state.mode==="text"){
-        E.answersText.style.display='none'; E.next1.style.display='inline-block';
-      }else{
-        E.answersAudio.style.display='none'; E.next2.style.display='inline-block';
-      }
-    }
-       saveQuizState();      // Sauvegarder après chaque réponse
+  const q=state.questions[state.idx];
+  if(isOk){ state.ok++; E.ok.textContent=state.ok; } else { state.ko++; E.ko.textContent=state.ko; }
+  state.history.push({
+    q, isOk, at:new Date()
+  });
+  if(state.mode==="text"){
+    E.answersText.style.display='none'; E.next1.style.display='inline-block';
+  }else{
+    E.answersAudio.style.display='none'; E.next2.style.display='inline-block';
+  }
+  saveQuizState();  // Sauvegarder après chaque réponse
+}    
 
     function next(){ 
      state.idx++; 
