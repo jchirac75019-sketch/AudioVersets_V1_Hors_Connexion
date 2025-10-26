@@ -873,9 +873,30 @@ async function preloadAudios() {
     
     E.player.src = audioPath;
     
+    // ATTENDRE que loadstart se déclenche (pas canplaythrough!)
     await new Promise((resolve, reject) => {
-      E.player.addEventListener('canplaythrough', resolve, {once: true});
-      E.player.addEventListener('error', reject, {once: true});
+      const timeout = setTimeout(() => {
+        E.player.removeEventListener('loadstart', onLoadStart);
+        E.player.removeEventListener('error', onError);
+        resolve(); // Résoudre même si pas de loadstart (offline)
+      }, 500);
+      
+      const onLoadStart = () => {
+        clearTimeout(timeout);
+        E.player.removeEventListener('loadstart', onLoadStart);
+        E.player.removeEventListener('error', onError);
+        resolve();
+      };
+      
+      const onError = (e) => {
+        clearTimeout(timeout);
+        E.player.removeEventListener('loadstart', onLoadStart);
+        E.player.removeEventListener('error', onError);
+        reject(e);
+      };
+      
+      E.player.addEventListener('loadstart', onLoadStart, {once: true});
+      E.player.addEventListener('error', onError, {once: true});
     });
     
     await E.player.play().catch(err => console.warn('⚠️ Autoplay:', err.message));
